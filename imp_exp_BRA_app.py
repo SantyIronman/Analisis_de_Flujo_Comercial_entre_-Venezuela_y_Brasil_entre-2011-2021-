@@ -22,7 +22,7 @@ def set_bg_hack_url():
           <style> 
         .stApp {{ 
               background-color: rgba(0, 0, 0, 0.5); /* 50% opacidad */
-              background-image: url("https://img.goodfon.com/wallpaper/big/8/28/brazil-brasil-copacabana.jpg"); 
+              background-image: url("https://i.imgur.com/enoZJSV.png"); 
               background-size: cover; 
          }} 
           </style> 
