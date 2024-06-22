@@ -2,6 +2,10 @@ import sqlite3
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+from PIL import Image
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+import numpy as np
  
 
 # Conectar a la base de datos
@@ -12,6 +16,7 @@ cursor = conn.cursor()
 conn.close()
 
 
+plt.style.use("dark_background")
 
 st.title('Análisis del Flujo Comercial entre Venezuela y Brasil (2011-2021)')
 
@@ -22,7 +27,7 @@ def set_bg_hack_url():
           <style> 
         .stApp {{ 
               background-color: rgba(0, 0, 0, 0.5); /* 50% opacidad */
-              background-image: url("https://img.goodfon.com/wallpaper/big/8/28/brazil-brasil-copacabana.jpg"); 
+              background-image: url("https://i.imgur.com/enoZJSV.png"); 
               background-size: cover; 
          }} 
           </style> 
