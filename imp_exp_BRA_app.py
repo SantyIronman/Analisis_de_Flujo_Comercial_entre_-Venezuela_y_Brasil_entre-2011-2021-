@@ -5,7 +5,8 @@ import plotly.express as px
 import matplotlib.pyplot as plt
 
 
-# Base de datos
+
+
 
 st.title('Análisis del Flujo Comercial entre Venezuela y Brasil (2011-2021)')
 
@@ -88,6 +89,43 @@ st.markdown("""
 </ol>
 """, unsafe_allow_html=True)
 
-st.header("Durante el 2011")
+st.header("Acerca de las importaciones")
 
 
+
+# Conecta a la base de datos
+conn = sqlite3.connect('C:/Users/dan_n/Documents/Importaciones_Exportaciones BRA 2011-2021/database.db')
+
+# Ejecutar la consulta SQL sobre el dinero de las importaciones 
+cursor = conn.cursor()
+cursor.execute("SELECT suma_2011 FROM limpia_imp LIMIT 1")
+result = cursor.fetchone()
+st.metric("Total de costo de las importaciones en el año 2021", result[0])
+
+# Ejecutar la consulta SQL sobre el dinero producto más importado
+cursor = conn.cursor()
+cursor.execute("SELECT NO_NCM_ESP, SUM(CO_UNID) AS cantidad_total FROM limpia_imp WHERE CO_ANO = 2011 GROUP BY NO_NCM_ESP ORDER BY cantidad_total DESC LIMIT 1")
+result = cursor.fetchone()
+st.metric("Producto más importado en el 2011", result[0])
+
+#Consulta SQL para obtener los datos para el gráfico
+cursor = conn.cursor()
+cursor.execute("""
+    SELECT CO_ANO, NO_NCM_ESP, SUM(CO_UNID) AS cantidad_total, SUM(VL_FOB) AS valor_total
+    FROM limpia_imp
+    GROUP BY CO_ANO, NO_NCM_ESP
+    ORDER BY CO_ANO, cantidad_total DESC;
+""")
+result = cursor.fetchall()
+
+conn.close()
+
+df = pd.DataFrame(result, columns=['Año', 'Producto', 'Cantidad Total', 'Valor Total'])
+
+#Gráfico de barras para cada año y producto vendido
+for year in df['Año'].unique():
+    year_df = df[df['Año'] == year]
+    top_5_products = year_df.nlargest(5, 'Cantidad Total')
+    st.bar_chart(top_5_products, x='Producto', y='Cantidad Total', color='Valor Total')
+    st.write(f"Productos más vendidos en {year}:")
+    st.write(top_5_products)
