@@ -60,6 +60,97 @@ contenido = f"""
 st.markdown(contenido, unsafe_allow_html=True)
 
 
+#datos interesantes 
+
+col1, col2 = st.columns(2)
+
+html1 = """
+<div style="text-align: center;">
+ <h2>PIB:</h2>
+  <p> 2011: $2.421.443 millones (USD a precios corrientes).</p>
+  <p> 2021: $1.849.473 millones (USD a precios corrientes)</p>
+  <p> <strong>Caída:</strong> 24% </p>
+</div>
+"""
+
+
+html2 = """
+<div style="text-align: center;">
+  <h2>Variación del Ingreso Per Cápita:</h2>
+  <p>Caída: 23% entre 2011 y 2021</p>
+  <p>Punto más alto: $13.230 en 2014</p>
+</div>
+"""
+
+
+
+
+
+with col1:
+    st.write(html1, unsafe_allow_html=True)
+
+with col2:
+    st.write(html2, unsafe_allow_html=True)
+
+
+
+
+
+
+
+
+#Se agrega el apartado BRASIL-VENEZUELA
+
+
+contenido = f"""
+<div class="container">
+    <h2 style="text-align: center;"><b>Brasil/</b></h2>
+    <img src="https://img.goodfon.com/wallpaper/big/7/97/brasil-brazil-flag-flag-of-brazil-brazilian-flag.jpg" alt="Flag" width="50" > 
+    <h2 style="text-align: center;"><b>Venezuela</b></h2>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Flag_of_Venezuela_%281930%E2%80%932006%29.svg/220px-Flag_of_Venezuela_%281930%E2%80%932006%29.svg.png" alt="Flag" width="50" > 
+</div>
+"""
+
+st.markdown(contenido, unsafe_allow_html=True)
+
+
+#Se agregan datos interesantes sobre Brasil y Venezuela
+col1, col2, col3 = st.columns(3)
+
+html1 = """
+<div style="text-align: center;">
+  <h2>PRODUCTO</h2>
+  <p>$341MM | $270MM</p>
+  <p>EXPORTACIONES | IMPORTACIÓN</p>
+</div>
+"""
+
+html2 = """
+<div style="text-align: center;">
+ <h2>IMPORTACIÓN</h2>
+  <p>2011: Venezuela era el 12º proveedor más importante de Brasil.</p>
+  <p>2021: Venezuela ocupaba el puesto 60º entre los proveedores de Brasil.</p>
+</div>
+"""
+html3 = """
+<div style="text-align: center;">
+ <h2>EXPORTACIÓN</h2>
+  <p>2011: Venezuela era el 5º destino más importante de las exportaciones brasileñas.</p>
+  <p>2021: Venezuela ocupaba el puesto 25º entre los destinos de las exportaciones brasileñas.</p>
+</div>
+"""
+
+with col1:
+    st.write(html1, unsafe_allow_html=True)
+
+with col2:
+    st.write(html2, unsafe_allow_html=True)
+
+with col3:
+    st.write(html3, unsafe_allow_html=True)
+
+
+
 # Contenido sobre el contexto histórico
 
 st.title("Acerca de")
@@ -92,21 +183,9 @@ st.markdown("""
 st.header("Acerca de las importaciones")
 
 
-
 # Conecta a la base de datos
 conn = sqlite3.connect('C:/Users/dan_n/Documents/Importaciones_Exportaciones BRA 2011-2021/database.db')
 
-# Ejecutar la consulta SQL sobre el dinero de las importaciones 
-cursor = conn.cursor()
-cursor.execute("SELECT suma_2011 FROM limpia_imp LIMIT 1")
-result = cursor.fetchone()
-st.metric("Total de costo de las importaciones en el año 2021", result[0])
-
-# Ejecutar la consulta SQL sobre el dinero producto más importado
-cursor = conn.cursor()
-cursor.execute("SELECT NO_NCM_ESP, SUM(CO_UNID) AS cantidad_total FROM limpia_imp WHERE CO_ANO = 2011 GROUP BY NO_NCM_ESP ORDER BY cantidad_total DESC LIMIT 1")
-result = cursor.fetchone()
-st.metric("Producto más importado en el 2011", result[0])
 
 #Consulta SQL para obtener los datos para el gráfico
 cursor = conn.cursor()
@@ -129,3 +208,38 @@ for year in df['Año'].unique():
     st.bar_chart(top_5_products, x='Producto', y='Cantidad Total', color='Valor Total')
     st.write(f"Productos más vendidos en {year}:")
     st.write(top_5_products)
+
+
+# Crea un gráfico de mapa de Brasil y Venezuela
+fig = px.choropleth_mapbox(None, geojson="https://raw.githubusercontent.com/python-visualization/folium/master/examples/data/brazil-states.geojson",
+                           locations=["SP", "RJ", "MG", "ES", "BA", "SE", "AL", "PE", "PB", "RN", "CE", "PI", "MA", "TO", "GO", "MT", "MS", "DF", "PR", "SC", "RS"],
+                           color_discrete_sequence=["green"] * 20,
+                           zoom=3, center={"lat": -15, "lon": -55},
+                           mapbox_style="carto-positron",
+                           title="Mapa de Brasil y Venezuela")
+
+# Agrega Venezuela al mapa
+venezuela_geojson = "https://raw.githubusercontent.com/python-visualization/folium/master/examples/data/venezuela-states.geojson"
+venezuela_locations = ["Amazonas", "Anzoátegui", "Apure", "Aragua", "Barinas", "Bolívar", "Carabobo", "Cojedes", "Delta Amacuro", "Falcón", "Guárico", "Lara", "Mérida", "Miranda", "Monagas", "Nueva Esparta", "Portuguesa", "Sucre", "Táchira", "Trujillo", "Vargas", "Yaracuy", "Zulia"]
+fig.add_trace(px.choropleth_mapbox(None, geojson=venezuela_geojson,
+                                   locations=venezuela_locations,
+                                   color_discrete_sequence=["red"] * len(venezuela_locations),
+                                   zoom=3, center={"lat": 8, "lon": -66},
+                                   mapbox_style="carto-positron").data[0])
+
+# Agrega ciudades importantes de Brasil
+cities = pd.DataFrame({
+    "City": ["São Paulo", "Rio de Janeiro", "Brasília", "Salvador", "Belo Horizonte", "Curitiba", "Porto Alegre", "Recife", "Fortaleza", "Goiânia"],
+    "Lat": [-23.5505, -22.9068, -15.7942, -12.9711, -19.9208, -25.4292, -30.0339, -8.0500, -3.7184, -16.6794],
+    "Lon": [-46.6333, -43.1729, -47.8825, -38.5016, -43.9384, -49.2713, -51.2304, -34.8817, -38.4597, -47.8742]
+})
+
+fig.add_trace(px.scatter_mapbox(cities, lat="Lat", lon="Lon", hover_name="City", color_discrete_sequence=["red"] * len(cities)).data[0])
+
+# Configura el layout del gráfico
+fig.update_layout(margin=dict(l=0, r=0, t=30, b=0),
+                  width=800, height=600)
+
+# Muestra el gráfico en Streamlit
+st.title("Mapa de Brasil y Venezuela")
+st.plotly_chart(fig, use_container_width=True)
