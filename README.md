@@ -30,10 +30,6 @@ significativos en los costos promedio a lo largo del tiempo? ¿Cuáles han sido 
 
 6.  Agencias de Preferencia: ¿Cuáles han sido las agencias más utilizadas para los procesos de importación y exportación entre Venezuela y Brasil durante el período
 2011-2021? ¿Ha habido cambios en las preferencias de agencias a lo largo del tiempo? ¿Existe una preferencia dominante por una agencia en particular?
-    
-Fuentes de Datos
-
-●   Data of Brazilian Import and Export data
 
 Marco Teórico
 
@@ -240,6 +236,17 @@ Definición de Variables
 
 ●   Formato: Variable (precisión y escala no especificadas)
 
+Fuentes de Datos
+
+●   Data of Brazilian Import and Export data
+
+Weisbrot, M. Sachs, J.(2019) Sanciones económicas como castigo colectivo: El caso de Venezuela. Estados Unidos.  https://cepr.net/images/stories/reports/venezuela-sanctions-2019-05-spn.pdf 
+
+Vera, L. (2019) ¿Cómo explicar la catástrofe económica venezolana? Venezuela.
+https://nuso.org/articulo/como-explicar-la-catastrofe-economica-venezolana/ 
+
+Ocando, G. (2021) Paso a paso: ¿por qué la economía de Venezuela tiene años en crisis? Portal Voz de América.
+https://www.vozdeamerica.com/a/venezuela_paso-paso-por-que-la-economia-de-venezuela-tiene-mucho-tiempo-crisis/6072387.html 
 
 POR CONSIDERAR
 
