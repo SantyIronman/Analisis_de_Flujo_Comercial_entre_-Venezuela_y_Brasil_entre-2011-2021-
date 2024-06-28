@@ -31,17 +31,17 @@ styles = """
 <style>
   .container {
         display: flex;
-        align-items: center; /* Alinear verticalmente el contenido */
+        align-items: center; 
     }
   .logo-img {
-        width: 150px; /* Tamaño de la imagen de la bandera */
+        width: 150px; 
         height: 100px;
-        margin: 10px; /* Agregar un margen para separar la imagen del borde */
+        margin: 10px; 
     }
   .logo-text {
-        font-size: 60px;  /* ajustar tamaño del texto */
-        font-weight: bold;  /* hacer que el texto sea negrita */
-        margin-left: 10px; /* Agregar un margen a la izquierda para separar del texto de la imagen */
+        font-size: 60px;  
+        font-weight: bold;  
+        margin-left: 10px; 
     }
 </style>
 """
@@ -82,10 +82,6 @@ html2 = """
 </div>
 """
 
-
-
-
-
 with col1:
     st.write(html1, unsafe_allow_html=True)
 
@@ -93,18 +89,12 @@ with col2:
     st.write(html2, unsafe_allow_html=True)
 
 
-
-
-
-
-
-
 #Se agrega el apartado BRASIL-VENEZUELA
 
 
 contenido = f"""
 <div class="container">
-    <h2 style="text-align: center;"><b>Brasil/</b></h2>
+    <h2 style="text-align: center;"><b>Brasil</b></h2>
     <img src="https://img.goodfon.com/wallpaper/big/7/97/brasil-brazil-flag-flag-of-brazil-brazilian-flag.jpg" alt="Flag" width="50" > 
     <h2 style="text-align: center;"><b>Venezuela</b></h2>
     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Flag_of_Venezuela_%281930%E2%80%932006%29.svg/220px-Flag_of_Venezuela_%281930%E2%80%932006%29.svg.png" alt="Flag" width="50" > 
@@ -180,66 +170,127 @@ st.markdown("""
 </ol>
 """, unsafe_allow_html=True)
 
+
+# Acerca de las importaciones
 st.header("Acerca de las importaciones")
 
+col1 = st.columns(1)
 
-# Conecta a la base de datos
+html1 = """
+<div style="text-align: center;">
+ <h2>IMPORTACIONES</h2>
+  <p> Valor de las importaciones 2021 $361 MM </p>
+  <p> Valor de las importaciones 2011 $884 MM </p>
+  <p> <strong>Crecimiento de </strong> $523MM</p>
+  <p> <strong>Crecimiento del valor de las exportacione</strong> -59,2% </p>
+</div>
+"""
+
+html1 = """
+<p style="text-align: center;">
+  <strong>PIB:</strong> Valor de las exportaciones 2021 $1,33MM,
+   <br>Valor de las exportaciones 2011 $5,33MM
+   <br>Crecimiento del valor de las exportacione -74,6%
+</p>
+"""
+
+st.write(html1, unsafe_allow_html=True)
+
+#graficos
+
 conn = sqlite3.connect('C:/Users/dan_n/Documents/Importaciones_Exportaciones BRA 2011-2021/database.db')
+cursor = conn.cursor()  
 
-
-#Consulta SQL para obtener los datos para el gráfico
-cursor = conn.cursor()
+# consulta
 cursor.execute("""
     SELECT CO_ANO, NO_NCM_ESP, SUM(CO_UNID) AS cantidad_total, SUM(VL_FOB) AS valor_total
     FROM limpia_imp
     GROUP BY CO_ANO, NO_NCM_ESP
     ORDER BY CO_ANO, cantidad_total DESC;
 """)
+
 result = cursor.fetchall()
-
-conn.close()
-
 df = pd.DataFrame(result, columns=['Año', 'Producto', 'Cantidad Total', 'Valor Total'])
+df['Producto'] = df['Producto'].apply(lambda x: x[:5] + '...' if len(x) > 5 else x)
+df_grouped = df.groupby(['Año', 'Producto'])['Cantidad Total'].sum().reset_index()
+df_grouped = df_grouped.sort_values(['Año', 'Cantidad Total'], ascending=[True, False]).groupby('Año').head(4).reset_index(drop=True)
+fig = px.bar(df_grouped, x='Producto', y='Cantidad Total', color='Cantidad Total', 
+             animation_frame='Año', hover_name='Producto', 
+             color_continuous_scale='greens')
+fig.update_layout(title='Productos más importados por año',
+                  xaxis_title='Producto',
+                  xaxis_title_font_size=18,
+                  yaxis_title='Cantidad Total',
+                  xaxis_tickfont=dict(size=14),  # Aumenta el tamaño de los tick labels
+                  updatemenus=[])
 
-#Gráfico de barras para cada año y producto vendido
-for year in df['Año'].unique():
-    year_df = df[df['Año'] == year]
-    top_5_products = year_df.nlargest(5, 'Cantidad Total')
-    st.bar_chart(top_5_products, x='Producto', y='Cantidad Total', color='Valor Total')
-    st.write(f"Productos más vendidos en {year}:")
-    st.write(top_5_products)
-
-
-# Crea un gráfico de mapa de Brasil y Venezuela
-fig = px.choropleth_mapbox(None, geojson="https://raw.githubusercontent.com/python-visualization/folium/master/examples/data/brazil-states.geojson",
-                           locations=["SP", "RJ", "MG", "ES", "BA", "SE", "AL", "PE", "PB", "RN", "CE", "PI", "MA", "TO", "GO", "MT", "MS", "DF", "PR", "SC", "RS"],
-                           color_discrete_sequence=["green"] * 20,
-                           zoom=3, center={"lat": -15, "lon": -55},
-                           mapbox_style="carto-positron",
-                           title="Mapa de Brasil y Venezuela")
-
-# Agrega Venezuela al mapa
-venezuela_geojson = "https://raw.githubusercontent.com/python-visualization/folium/master/examples/data/venezuela-states.geojson"
-venezuela_locations = ["Amazonas", "Anzoátegui", "Apure", "Aragua", "Barinas", "Bolívar", "Carabobo", "Cojedes", "Delta Amacuro", "Falcón", "Guárico", "Lara", "Mérida", "Miranda", "Monagas", "Nueva Esparta", "Portuguesa", "Sucre", "Táchira", "Trujillo", "Vargas", "Yaracuy", "Zulia"]
-fig.add_trace(px.choropleth_mapbox(None, geojson=venezuela_geojson,
-                                   locations=venezuela_locations,
-                                   color_discrete_sequence=["red"] * len(venezuela_locations),
-                                   zoom=3, center={"lat": 8, "lon": -66},
-                                   mapbox_style="carto-positron").data[0])
-
-# Agrega ciudades importantes de Brasil
-cities = pd.DataFrame({
-    "City": ["São Paulo", "Rio de Janeiro", "Brasília", "Salvador", "Belo Horizonte", "Curitiba", "Porto Alegre", "Recife", "Fortaleza", "Goiânia"],
-    "Lat": [-23.5505, -22.9068, -15.7942, -12.9711, -19.9208, -25.4292, -30.0339, -8.0500, -3.7184, -16.6794],
-    "Lon": [-46.6333, -43.1729, -47.8825, -38.5016, -43.9384, -49.2713, -51.2304, -34.8817, -38.4597, -47.8742]
-})
-
-fig.add_trace(px.scatter_mapbox(cities, lat="Lat", lon="Lon", hover_name="City", color_discrete_sequence=["red"] * len(cities)).data[0])
-
-# Configura el layout del gráfico
-fig.update_layout(margin=dict(l=0, r=0, t=30, b=0),
-                  width=800, height=600)
+# Configura el slider
+fig.update_layout(sliders=[dict(
+    currentvalue=dict(font=dict(size=16)),
+    pad={'t': 10},
+    steps=[]
+)])
 
 # Muestra el gráfico en Streamlit
-st.title("Mapa de Brasil y Venezuela")
 st.plotly_chart(fig, use_container_width=True)
+
+
+#Exportaciones apartado
+
+st.header("Acerca de las exportaciones")
+
+html1 = """
+<p style="text-align: center;">
+  <br>Valor de las exportaciones 2021 $1,33MM
+  <br>Valor de las exportaciones 2011 $5,33MM
+  <br><strong>Crecimiento del valor de las exportacione</strong> -74,6%
+</p>
+"""
+
+st.write(html1, unsafe_allow_html=True)
+
+# gráfico exportaciones
+
+# consulta
+cursor.execute("""
+    SELECT CO_ANO, NO_NCM_ESP, SUM(CO_UNID) AS cantidad_total, SUM(VL_FOB) AS valor_total
+    FROM limpia_exp
+    GROUP BY CO_ANO, NO_NCM_ESP
+    ORDER BY CO_ANO, cantidad_total DESC;
+""")
+
+result = cursor.fetchall()
+df = pd.DataFrame(result, columns=['Año', 'Producto', 'Cantidad Total', 'Valor Total'])
+df['Producto'] = df['Producto'].apply(lambda x: x[:5] + '...' if len(x) > 5 else x)
+df_grouped = df.groupby(['Año', 'Producto'])['Cantidad Total'].sum().reset_index()
+df_grouped = df_grouped.sort_values(['Año', 'Cantidad Total'], ascending=[True, False]).groupby('Año').head(4).reset_index(drop=True)
+fig = px.bar(df_grouped, x='Producto', y='Cantidad Total', color='Cantidad Total', 
+             animation_frame='Año', hover_name='Producto', 
+             color_continuous_scale='greens')
+fig.update_layout(title='Productos más exportados por año',
+                  xaxis_title='Producto',
+                  yaxis_title='Cantidad Total',
+                  updatemenus=[])
+
+#slider
+fig.update_layout(sliders=[dict(
+    currentvalue=dict(font=dict(size=16)),
+    pad={'t': 10},
+    steps=[]
+)])
+st.plotly_chart(fig, use_container_width=True)
+
+
+fig = px.scatter(df, x="no_ncm_pais", y="Cantidad Total", color="Producto", hover_name="Producto")
+fig.update_layout(title="Dispersión de productos vendidos por país",
+                  xaxis_title="País",
+                  yaxis_title="Cantidad Total",
+                  legend_title="Producto")
+st.plotly_chart(fig, use_container_width=True)
+
+
+
+st.header("Referencias bibliográficas")
+
+st.write("Exportaciones, importaciones y socios comerciales. (2022). OEC. https://oec.world/es/profile/country/bra?subnationalFlowSelector=flow0&flowSelector1=flow1")
+st.write("Instituto Brasileiro de Geografía y Estadística (2020). IBGE. https://www.ibge.gov.br/")
